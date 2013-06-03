@@ -50,6 +50,7 @@ configureBoot
 configureSystem
 networking
 thirdStage
+finalSetup
 cleanUp
 if [ "${device}" == "" ]; then
 	ddImage
@@ -149,8 +150,10 @@ suite="wheezy"
 
 if [ "${arch}" = "armhf" ] ; then
 deb_mirror="http://archive.raspbian.org/raspbian"
+#deb_mirror="http://localhost:3142/archive.raspbian.org/raspbian"
 else
 deb_mirror="http://http.debian.net/debian"
+#deb_mirror="http://localhost:3142/http.debian.net/debian"
 fi
 
 case $retval in
@@ -492,7 +495,7 @@ echo "#!/bin/bash
 debconf-set-selections /debconf.set
 rm -f /debconf.set
 apt-get -qq update
-apt-get -qq -y install git-core binutils ca-certificates locales console-common ntp ntpdate openssh-server wget module-init-tools $choices
+apt-get -qq -y install git-core binutils ca-certificates locales console-common ntp ntpdate openssh-server wget module-init-tools avahi-daemon $choices
 wget  -q http://raw.github.com/Hexxeh/rpi-update/master/rpi-update -O /usr/bin/rpi-update
 chmod +x /usr/bin/rpi-update
 mkdir -p /lib/modules/3.1.9+
@@ -577,6 +580,33 @@ case $retval in
   255)
       exit 1;;
 esac
+}
+
+function finalSetup
+{
+
+# TODO: Memory split - gpu_mem in /boot/config.txt
+# GPU memory in megabytes ARM gets the remaining memory. Min 16. Default 64 
+# We dont care as want to run headless.
+
+whiptail --infobox "Configuring RAM/GPU Split..." 0 0; sleep 1;
+echo "gpu_mem=16" >> /boot/config.txt
+echo "gpu_mem_256=16" >> /boot/config.txt
+echo "gpu_mem_512=16" >> /boot/config.txt
+
+# Localisation
+whiptail --infobox "Configuring Locales..." 0 0; sleep 1;
+dpkg-reconfigure locales
+whiptail --infobox "Configuring Time Zones..." 0 0; sleep 1;
+dpkg-reconfigure tzdata
+whiptail --infobox "Configuring Keyboard..." 0 0; sleep 1;
+dpkg-reconfigure keyboard-configuration
+invoke-rc.d keyboard-setup start
+
+# Enable SSH
+whiptail --infobox "Configuring SSH..." 0 0; sleep 1;
+insserv avahi-daemon
+update-rc.d ssh enable
 }
 
 #RUN
