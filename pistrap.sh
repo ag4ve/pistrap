@@ -145,19 +145,11 @@ whiptail --clear --title "RaspberryPi Card Builder v0.2" \
 retval=$?
 arch=`cat $tempfile`
 
-if [ "${arch}" = "armhf" ] ; then
 suite="wheezy"
+
+if [ "${arch}" = "armhf" ] ; then
 deb_mirror="http://archive.raspbian.org/raspbian"
 else
-tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
-trap "rm -f $tempfile" 0 1 2 5 15
-whiptail --clear --title "RaspberryPi Card Builder v0.2" \
-        --menu "Please choose your Suite: " 0 0 0 \
-        "wheezy" "wheezy" \
-        "sid" "sid" 2> $tempfile
-
-retval=$?
-suite=`cat $tempfile`
 deb_mirror="http://http.debian.net/debian"
 fi
 
