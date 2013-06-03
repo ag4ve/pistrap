@@ -590,9 +590,9 @@ function finalSetup
 # We dont care as want to run headless.
 
 whiptail --infobox "Configuring RAM/GPU Split..." 0 0; sleep 1;
-echo "gpu_mem=16" >> /boot/config.txt
-echo "gpu_mem_256=16" >> /boot/config.txt
-echo "gpu_mem_512=16" >> /boot/config.txt
+echo "gpu_mem=16" >> boot/config.txt
+echo "gpu_mem_256=16" >> boot/config.txt
+echo "gpu_mem_512=16" >> boot/config.txt
 
 # Localisation
 whiptail --infobox "Configuring Locales..." 0 0; sleep 1;
