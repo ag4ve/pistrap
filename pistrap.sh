@@ -379,13 +379,13 @@ cd $rootfs  &>> /var/log/pistrap.log
 whiptail --infobox "Bootstrapping into ${rootfs}..." 0 0; sleep 2;
 # To bootstrap our new system, we run debootstrap, passing it the target arch and suite, as well as a directory to work in.
 # FIXME: We do --no-check-certificate and --no-check-gpg to make raspbian work.
-debootstrap --keep-debootstrap-dir --no-check-certificate --no-check-gpg --foreign --arch $arch $suite $rootfs $deb_mirror  2>&1 | tee -a /var/log/pistrap.log
+debootstrap --no-check-certificate --no-check-gpg --foreign --arch $arch $suite $rootfs $deb_mirror  2>&1 | tee -a /var/log/pistrap.log
 
 whiptail --infobox "Second stage. Chrooting into ${rootfs}..." 0 0; sleep 2;
 # To be able to chroot into a target file system, the qemu emulator for the target CPU needs to be accessible from inside the chroot jail.
 cp /usr/bin/qemu-arm-static usr/bin/  &>> /var/log/pistrap.log
 # Second stage - Run Post-install scripts.
-LANG=C chroot $rootfs /debootstrap/debootstrap --keep-debootstrap-dir --no-check-certificate --no-check-gpg --second-stage  2>&1 | tee -a /var/log/pistrap.log
+LANG=C chroot $rootfs /debootstrap/debootstrap --no-check-certificate --no-check-gpg --second-stage  2>&1 | tee -a /var/log/pistrap.log
 }
 
 function configureBoot
@@ -495,7 +495,7 @@ echo "#!/bin/bash
 debconf-set-selections /debconf.set
 rm -f /debconf.set
 apt-get -qq update
-apt-get -qq -y install git-core binutils ca-certificates locales console-common ntp ntpdate openssh-server wget module-init-tools avahi-daemon $choices
+apt-get -qq -y install --no-install-recommends git-core binutils ca-certificates locales console-common ntp ntpdate fake-hwclock openssh-server wget module-init-tools avahi-daemon cpufrequtils sysfsutils haveged rng-tools $choices
 wget  -q http://raw.github.com/Hexxeh/rpi-update/master/rpi-update -O /usr/bin/rpi-update
 chmod +x /usr/bin/rpi-update
 mkdir -p /lib/modules/3.1.9+
@@ -593,6 +593,19 @@ whiptail --infobox "Configuring RAM/GPU Split..." 0 0; sleep 1;
 echo "gpu_mem=16" >> boot/config.txt
 echo "gpu_mem_256=16" >> boot/config.txt
 echo "gpu_mem_512=16" >> boot/config.txt
+
+whiptail --infobox "Configuring Overclock..." 0 0; sleep 1;
+
+echo "# High, but stable overclock as max freq, Minor overclock as min freq
+arm_freq = 930 # Default 700mhz
+core_freq = 450 # Default 250mhz
+sdram_freq = 500 # Frequency of SDRAM in MHz. Default 400mhz
+arm_freq_min = 800 # Minimum value of arm_freq used for dynamic clocking. Default 700mhz
+core_freq = 450 # Default 250mhz
+sdram_freq_min = 450 # Minimum value of sdram_freq used for dynamic clocking. Default 400mhz
+# The ondemand governor usually only kicks in at 95% load, we want to stay at max.
+force_turbo = 1 - TODO: Set off as may void warranty?
+" >>  boot/config.txt
 
 # Localisation
 whiptail --infobox "Configuring Locales..." 0 0; sleep 1;
