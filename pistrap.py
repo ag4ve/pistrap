@@ -3,10 +3,6 @@ from __future__ import print_function
 from datetime import datetime
 import os
 
-# Main entry point for the application
-
-build_details = {}
-
 # Configure details of build
 def init(build_details = {}):
     build_details['bootsize'] = "64M" # Boot partition size on RPI.
@@ -93,25 +89,21 @@ def processBuild(build_details = {}):
     for k in build_details:
         print(str(k) + " : " + str(build_details[k]))
         
-    # TODO: Call bash script with args?
+    # Call bash script with args
     
     """
-    $hostname=$1
-    $dist=$2
-    $deb_mirror=$3
-    $image=$4
-    $bootsize=$5
-    $mydate=$6
-    $buildenv=$7
-    $bootfs=$8
-    $rootfs=$9
-    $suite=$10
-    $password=$11
-    $arch=$12
-    $size=$13
+    hostname="${1}"
+    dist="${2}"
+    deb_mirror="${3}"
+    bootsize="${4}"
+    buildenv="${5}"
+    suite="${6}"
+    password="${7}"
+    arch="${8}"
+    size="${9}"
     """
-    
-    build_details['command'] = "sudo ./pistrap.sh" + " " + build_details['hostname'] + " " + build_details['dist'] + " " + build_details['deb_mirror'] + " " + build_details['image'] + " " + build_details['bootsize'] + " " + build_details['mydate'] + " " + build_details['buildenv'] + " " + build_details['bootfs'] + " " + build_details['rootfs'] + " " + build_details['suite'] + " " + build_details['password'] + " " + build_details['arch'] + " " + build_details['size'] + " " + build_details['device']
+        
+    build_details['command'] = "sudo ./pistrap.sh" + " " + build_details['hostname'] + " " + build_details['dist'] + " " + build_details['deb_mirror'] + " " + build_details['bootsize'] + " " + build_details['buildenv'] + " "  + build_details['suite'] + " " + build_details['password'] + " " + build_details['arch'] + " " + build_details['size']
 
     print ("\nResulting Command:\n")
     print(build_details['command'])
@@ -128,11 +120,16 @@ def checkRequirements():
     else:
         return True
 
-if __name__ == "__main__":
+def main(build_details={}, buildenv = None, arch = None, suite = None,dist=None,  hostname = None, password = None):
     if checkRequirements():
         build_details = init(build_details)
-        build_details = getBuildroot(build_details)
-        build_details = getType(build_details)
-        build_details = getHostname(build_details)
-        build_details = getPassword(build_details)
+        build_details = getBuildroot(build_details,buildenv)
+        build_details = getType(build_details,arch,suite,dist)
+        build_details = getHostname(build_details,hostname)
+        build_details = getPassword(build_details,password)
         build_details = processBuild(build_details)
+    return build_details
+        
+# Main entry point for the application
+if __name__ == "__main__":
+    main()
