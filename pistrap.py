@@ -10,12 +10,12 @@ build_details = {}
 # Configure details of build
 def init(build_details = {}):
     build_details['bootsize'] = "64M" # Boot partition size on RPI.
-    build_details['size'] = 1000 # Size of image to create in MB. You will need to set this higher if you want a larger selection.
+    build_details['size'] = "1000" # Size of image to create in MB. You will need to set this higher if you want a larger selection.
     t = datetime.utcnow()
     build_details['mydate'] = t.strftime("%Y%m%d")  
     build_details['image'] = "placeholder.img"
     build_details['password'] = "raspberry"
-    build_details['choices'] = {}
+    build_details['device'] = "" # Build image
     print ("Starting build on " + build_details['mydate'] + ".") 
     return build_details
 
@@ -83,27 +83,40 @@ def getPassword(build_details = {}, password = None):
     print ("Setting root password: " + build_details['password'] + "...") 
     return build_details
 
-def pickPackages(build_details = {}):
-    # TODO - Pick choices from options.
-    print ("Choose which of these packages you want installed")
-    build_details['options'] = {}
-    build_details['choices'] = {}
-    
-    build_details['options']['less'] = "A pager, you probably want this"
-    build_details['options']['vim'] = "An editor, cooler than Nano"
-    build_details['options']['screen'] = "Runs lots of stuff, in one terminal"
-    build_details['options']['minicom'] = "A serial console"
-    build_details['options']['zsh'] = "Probably the best shell ever"
-    build_details['options']['htop'] = "A better system monitor"
+def processBuild(build_details = {}):
 
-    if build_details['choices'] != {}:
-        print ("Selections Set. Installing additional software: " + build_details['choices'] + "...")
-    else:
-        print ("Installing default software set.") 
-        
-    print ("You are bootstrapping " + build_details['hostname'] + " with " + build_details['suite'] + " (" + build_details['arch'] + "), from " + build_details['deb_mirror'] + " into " + build_details['buildenv'] + ". Are you SURE you want to Continue?")
+    print ("You are bootstrapping " + build_details['hostname'] + " with " + build_details['suite'] + " (" + build_details['arch'] + "), from " + build_details['deb_mirror'] + " into " + build_details['buildenv'] + ".")
     
     build_details['image'] = build_details['buildenv'] + "/pistrap_" + build_details['suite'] + "_"+ build_details['arch'] + "_" + build_details['mydate'] + ".img"
+    
+    print ("\nSummary:\n")
+    for k in build_details:
+        print(str(k) + " : " + str(build_details[k]))
+        
+    # TODO: Call bash script with args?
+    
+    """
+    $hostname=$1
+    $dist=$2
+    $deb_mirror=$3
+    $image=$4
+    $bootsize=$5
+    $mydate=$6
+    $buildenv=$7
+    $bootfs=$8
+    $rootfs=$9
+    $suite=$10
+    $password=$11
+    $arch=$12
+    $size=$13
+    """
+    
+    build_details['command'] = "sudo ./pistrap.sh" + " " + build_details['hostname'] + " " + build_details['dist'] + " " + build_details['deb_mirror'] + " " + build_details['image'] + " " + build_details['bootsize'] + " " + build_details['mydate'] + " " + build_details['buildenv'] + " " + build_details['bootfs'] + " " + build_details['rootfs'] + " " + build_details['suite'] + " " + build_details['password'] + " " + build_details['arch'] + " " + build_details['size'] + " " + build_details['device']
+
+    print ("\nResulting Command:\n")
+    print(build_details['command'])
+
+    os.system(build_details['command'])
     
     return build_details
     
@@ -114,92 +127,6 @@ def checkRequirements():
         return True # TODO: True for now to test.
     else:
         return True
-        
-###############################################################################
-#################TODO: CALL BASH SCRIPTS FROM OLD CODEBASE, EASIER#############
-###############################################################################
-###############################################################################
-###############################################################################
-
-def partitionDevice():
-    print ("Partitioning...")
-    # TODO: Implement
-    return False
-        
-def mountDevice():
-    print ("Mounting Partitions...")
-    # TODO: Implement
-    return False
-        
-# bootp is the boot partition. rootp is the partition that will hold rootfs.
-def formatDevice():
-    print ("Formatting Partitions ...")
-    # TODO: Implement
-    return False
-    
-def bootstrapDevice():
-    print ("Bootstrapping new filesystem...")
-    # To bootstrap our new system, we run debootstrap, passing it the target arch and suite, as well as a directory to work in.
-    # FIXME: We do --no-check-certificate and --no-check-gpg to make raspbian work.
-    # TODO:debootstrap --no-check-certificate --no-check-gpg --foreign --arch $arch $suite $rootfs $deb_mirror 2>&1
-
-    print ("Second stage. Chrooting...")
-    # To be able to chroot into a target file system, the qemu emulator for the target CPU needs to be accessible from inside the chroot jail.
-    # TODO: cp /usr/bin/qemu-arm-static usr/bin/ &>
-    # TODO: Second stage - Run Post-install scripts.
-    return False
-    
-def configureBoot():
-    # TODO: Implement
-    print ("Configuring boot partition...")
-    print ("Configuring bootloader...")
-    #The system you have just created needs a few tweaks so you can use it.
-    print ("Configuring fstab...")
-    return False
-    
-def networking():
-    #Configure networking for DHCP
-    # TODO: Implement
-    print ("Configuring Networking...")
-    print ("Setting hostname to " + build_details['hostname'] + "...")
-    print ("Configuring network adapters...")
-    return False
-    
-def configureSystem():
-    # TODO: Implement
-    print ("Configuring System")
-
-    # By default, debootstrap creates a very minimal system, so we will want to extend it by installing more packages.
-    print ("Configuring sources.list...")
-    # The (buggyish) analog audio driver for the SoC.
-    print ("Configuring kernel modules...")
-    # Will spawn consoles on USB serial adapter for headless use.
-    print ("Configuring USB serial console...")
-    print ("Configuring locales...") # TODO: Select keymap from full list?
-    return False
-    
-def thirdStage():
-    print ("Third stage. Installing packages...")
-    
-    #  TODO: Implement. Install things we need in order to grab and build firmware from github, and to work with the target remotely. Also, NTP as the date and time will be wrong, due to no RTC being on the board. This is important, as if you get errors relating to certificates, : the problem is likely due to one of two things. Either the time is set incorrectly on your Raspberry Pi, which you can fix by simply setting the time using NTP. The other possible issue is that you might not have the ca-certificates package installed, and so GitHub's SSL certificate isn't trusted.
-    return False
-    
-def cleanUp():
-    # Tidy up afterward
-    print ("Cleaning up...")
-    return False
-    
-def finalSetup():
-    # TODO: Implement
-    print ("Configuring RAM/GPU Split...")
-    print ("Configuring Overclock...")
-
-    print ("Configuring Locales...")
-    print ("Configuring Time Zones...")
-    print ("Configuring Keyboard...")
-
-    print ("Configuring SSH...")
-    return False
 
 if __name__ == "__main__":
     if checkRequirements():
@@ -208,20 +135,4 @@ if __name__ == "__main__":
         build_details = getType(build_details)
         build_details = getHostname(build_details)
         build_details = getPassword(build_details)
-        build_details = pickPackages(build_details)
-        
-        partitionDevice()
-        mountDevice()
-        formatDevice()
-        bootstrapDevice()
-        configureBoot()
-        configureSystem()
-        networking()
-        thirdStage()
-        finalSetup()
-        cleanUp()
-        
-        for k in build_details:
-            print(str(k) + " : " + str(build_details[k]))
-            
-        # TODO: Call bash script with args?
+        build_details = processBuild(build_details)
