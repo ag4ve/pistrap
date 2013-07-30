@@ -103,7 +103,7 @@ def processBuild(build_details = {}):
     size="${9}"
     """
         
-    build_details['command'] = "sudo ./pistrap.sh" + " " + build_details['hostname'] + " " + build_details['dist'] + " " + build_details['deb_mirror'] + " " + build_details['bootsize'] + " " + build_details['buildenv'] + " "  + build_details['suite'] + " " + build_details['password'] + " " + build_details['arch'] + " " + build_details['size']
+    build_details['command'] = "sudo ./pistrap_mini.sh" + " " + build_details['hostname'] + " " + build_details['dist'] + " " + build_details['deb_mirror'] + " " + build_details['bootsize'] + " " + build_details['buildenv'] + " "  + build_details['suite'] + " " + build_details['password'] + " " + build_details['arch'] + " " + build_details['size']
 
     print ("\nResulting Command:\n")
     print(build_details['command'])
