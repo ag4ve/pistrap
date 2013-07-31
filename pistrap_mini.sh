@@ -46,6 +46,7 @@ size="${9}"
 image=""
 device=""
 mydate=`date +%Y%m%d`
+mytime=`date +%H%M`
 
 if [ -z "$1" ]
   then
@@ -126,7 +127,7 @@ echo "
 
 if [ "$device" == "" ]; then
   mkdir -p $buildenv  &>> /var/log/pistrap.log
-  image="${buildenv}/pistrap_${suite}_${arch}_${mydate}.img"
+  image="${buildenv}/pistrap_${suite}_${arch}_${mydate}_${mytime}.img"
   dd if=/dev/zero of=$image bs=1MB count=$size  &>> /var/log/pistrap.log
   device=`losetup -f --show $image`
 else

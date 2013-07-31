@@ -3,7 +3,7 @@ from __future__ import print_function
 from datetime import datetime
 import os
 import bottle
-from bottle import Bottle, route, run, request, abort
+from bottle import Bottle, route, run, request, abort, view, template
 
 app = Bottle()
 
@@ -17,12 +17,13 @@ def init(build_details = {}):
         if not 'password' in build_details:
             build_details['password'] = "raspberry"
             
-        t = datetime.utcnow()
+        t = datetime.now()
         build_details['mydate'] = t.strftime("%Y%m%d")  
+        build_details['mytime'] = t.strftime("%H%M")
         build_details['image'] = "placeholder.img"
         build_details['device'] = "" # Build image
         
-        print ("Starting build on " + build_details['mydate'] + ".") 
+        print ("Starting build on " + build_details['mydate'] + " at " + build_details['mytime'] + ".") 
         return build_details
     except Exception as e:
         print("Error setting up build! : " + str(e))
@@ -39,7 +40,6 @@ def getBuildroot(build_details = {},buildenv = None):
         build_details['rootfs'] = build_details['buildenv'] + "/rootfs"
         build_details['bootfs'] = build_details['rootfs'] + "/boot"
 
-        print ("Working in build root: " + build_details['buildenv'] + "...")
         return build_details
     except Exception as e:
         print("Error setting buildroot! : " + str(e))
@@ -70,7 +70,6 @@ def getType(build_details = {}, arch = None, suite = None,dist=None):
         else:
             print("FATAL: Unsupported dist/arch/suite combination selected!")
             exit(1)
-        print ("Setting up for " + build_details['arch'] + "....")
         return build_details
     except Exception as e:
         print("Error setting build type! : " + str(e))
@@ -84,7 +83,6 @@ def getHostname(build_details = {}, hostname = None):
         else:
             build_details['hostname'] = hostname
             
-        print ("Setting hostname: " + build_details['hostname'] +"...")
         return build_details
     except Exception as e:
         print("Error setting hostname! : " + str(e))
@@ -97,19 +95,14 @@ def getPassword(build_details = {}, password = None):
     else:
          build_details['password'] = password
          
-    print ("Setting root password: " + build_details['password'] + "...") 
     return build_details
 
 def processBuild(build_details = {}):
     try:
         print ("You are bootstrapping " + build_details['hostname'] + " with " + build_details['suite'] + " (" + build_details['arch'] + "), from " + build_details['deb_mirror'] + " into " + build_details['buildenv'] + ".")
         
-        build_details['image'] = build_details['buildenv'] + "/pistrap_" + build_details['suite'] + "_"+ build_details['arch'] + "_" + build_details['mydate'] + ".img"
-        
-        print ("\nSummary:\n")
-        for k in build_details:
-            print(str(k) + " : " + str(build_details[k]))
-            
+        build_details['image'] = build_details['buildenv'] + "/pistrap_" + build_details['suite'] + "_"+ build_details['arch'] + "_" + build_details['mydate'] + "_" + build_details['mytime'] + ".img"
+                    
         # Call bash script with args
             
         build_details['command'] = "sudo ./pistrap_mini.sh" + " " + build_details['hostname'] + " " + build_details['dist'] + " " + build_details['deb_mirror'] + " " + build_details['bootsize'] + " " + build_details['buildenv'] + " "  + build_details['suite'] + " " + build_details['password'] + " " + build_details['arch'] + " " + build_details['size'] + " 2>&1 | tee -a /var/log/pistrap.log"
@@ -136,10 +129,16 @@ def checkRequirements():
         print("ERROR: This tool must be run with superuser rights.")
         return False
         
+@app.route('/', method='GET')
+@view('submit')
+def index():
+    print (bottle.TEMPLATE_PATH)
+    return template('submit')
+
 @app.route('/build', method='POST')
 def build():
 
-    print("Build request has come in!")
+    print("Handling build request...")
     
     build_details = {}
     
@@ -180,7 +179,7 @@ def build():
             build_details = getHostname(build_details,hostname)
             build_details = getPassword(build_details,password)
             build_details = processBuild(build_details)
-            return str(build_details)
+            return "Image at: " + build_details['image'] + " created by running: " + build_details['command']
         else:
             return bottle.HTTPResponse(status=401, body="ERROR: This tool must be run with superuser rights.")
     except Exception as e:
