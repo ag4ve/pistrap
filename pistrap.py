@@ -103,7 +103,7 @@ def processBuild(build_details = {}):
     size="${9}"
     """
         
-    build_details['command'] = "sudo ./pistrap_mini.sh" + " " + build_details['hostname'] + " " + build_details['dist'] + " " + build_details['deb_mirror'] + " " + build_details['bootsize'] + " " + build_details['buildenv'] + " "  + build_details['suite'] + " " + build_details['password'] + " " + build_details['arch'] + " " + build_details['size']
+    build_details['command'] = "sudo ./pistrap_mini.sh" + " " + build_details['hostname'] + " " + build_details['dist'] + " " + build_details['deb_mirror'] + " " + build_details['bootsize'] + " " + build_details['buildenv'] + " "  + build_details['suite'] + " " + build_details['password'] + " " + build_details['arch'] + " " + build_details['size'] + " 2>&1 | tee -a /var/log/pistrap.log"
 
     print ("\nResulting Command:\n")
     print(build_details['command'])
@@ -116,7 +116,7 @@ def checkRequirements():
     # Check if root user
     if os.geteuid() != 0:
         print("ERROR: This tool must be run with superuser rights!") # Because debootstrap will create device nodes (using mknod) as well as chroot into the newly created system
-        return True # TODO: True for now to test.
+        return False
     else:
         return True
 
