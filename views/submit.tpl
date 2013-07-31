@@ -36,6 +36,7 @@
         </p>
         <p>
             <table border="1">
+            <tr><th>Builds</th></tr>
                 %for k in builds:
                       <tr>
                         <td><a href='{{builds[k]}}'>{{k}}</a></td>

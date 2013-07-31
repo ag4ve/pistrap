@@ -1,4 +1,12 @@
-pistrap (0.8) unstable; urgency=low
+pistrap (0.9) unstable; urgency=low
+
+  * Heading toward 1.0
+  * Now, cleaner, smaller, more scriptable, pistrap_mini variant, without the whiptail UI.
+  * pistrap_mini is used by pistrap-web, a python-based web application, for kicking off i.e. nightly build jobs.
+
+ -- James Bennet <github@james-bennet.com>  Wed, 31 Jul 2013 21:56:08 +0100
+ 
+ pistrap (0.8) unstable; urgency=low
 
   * Removed squeeze support, as it is now oldstable, and removed sid support as it is broken..
   * Also, added extra step, which sets GPU split, locale, SSH

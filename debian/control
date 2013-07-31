@@ -11,5 +11,15 @@ Vcs-Browser: http://github.com/jamesbennet/pistrap
 Package: pistrap
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, binfmt-support, qemu, qemu-user-static, debootstrap, kpartx, lvm2,dosfstools, git-core, binutils, ca-certificates, ntp, ntpdate, openssh-server,multistrap, schroot, fakechroot, cdebootstrap, minicom, whiptail, debhelper, devscripts, qemu-system,wget
+Description: Bootstraps your own minimal RaspberryPi SD-card image, supporting various dists,arches and suites. Pistrap bootstraps your own minimal RaspberryPi SD-card image, supporting various dists,arches and suites. The tool will also download, configure, and install the latest RPi firmware, kernel module etc... and has a nice whiptail-based interface for interactive use.
+
+Package: pistrap-mini
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, binfmt-support, qemu, qemu-user-static, debootstrap, kpartx, lvm2,dosfstools, git-core, binutils, ca-certificates, ntp, ntpdate, openssh-server,multistrap, schroot, fakechroot, cdebootstrap, minicom, debhelper, devscripts, qemu-system,wget
 Description: Bootstraps your own minimal RaspberryPi SD-card image, supporting various dists,arches and suites.
- Bootstraps your own minimal RaspberryPi SD-card image, supporting various dists,arches and suites. The tool will also download, configure, and install the latest RPi firmware, kernel module etc...
+This pistrap_mini variant is a version without the whiptail interface, which can be easialy scriptable, for use with i.e. pistrap-web.
+ 
+Package: pistrap-web
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, pistrap-mini, python, python-bottle
+Description: Bootstraps your own minimal RaspberryPi SD-card image, supporting various dists,arches and suites. This is the python-based web interface for kicking off pistrap jobs using the easialy scriptable pistrap_mini variant.

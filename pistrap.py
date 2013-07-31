@@ -133,19 +133,19 @@ def checkRequirements():
 @app.route('/', method='GET')
 @view('submit')
 def index():
-    print (bottle.TEMPLATE_PATH)
     builds = {}
     
-    for files in os.listdir("/root/build"):
-        if files.startswith("pistrap_") and files.endswith(".img"):
-            builds[files] = "/root/build/" + files
-    
+    try:
+        for files in os.listdir("/root/build"):
+            if files.startswith("pistrap_") and files.endswith(".img"):
+                builds[files] = "/root/build/" + files
+    except Exception as e:
+        print ("Exception while listing image files: " + str (e))
+        
     return template('submit', builds=builds)
 
 @app.route('/build', method='POST')
 def build():
-
-    print("Handling build request...")
     
     build_details = {}
     

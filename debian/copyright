@@ -1,4 +1,4 @@
-This work was packaged for Debian by:
+This work was originally packaged for Debian by:
 
     James Bennet <github@james-bennet.com> on Tue, 13 Nov 2012 11:55:13 +0000
 
@@ -17,9 +17,9 @@ Downstream Author(s):
 
 Copyright:
 
-    <Copyright (C) 2012 James Bennet>
+    <Copyright (C) 2012,2013 James Bennet>
     <Copyright (C) 2012 Klaus M Pfeiffer>
-    <Copyright (C) 2012 "Super" Nathan Weber>
+    <Copyright (C) 2012,2013 "Super" Nathan Weber>
 
 License:
 
@@ -37,4 +37,4 @@ OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 The Debian packaging is:
 
-Copyright (C) 2012 James Bennet <github@james-bennet.com> and is licensed under the licence above.
+Copyright (C) 2012,2013 James Bennet <github@james-bennet.com> and is licensed under the licence above.
