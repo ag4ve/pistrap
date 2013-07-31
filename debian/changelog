@@ -6,14 +6,14 @@ pistrap (0.9) unstable; urgency=low
 
  -- James Bennet <github@james-bennet.com>  Wed, 31 Jul 2013 21:56:08 +0100
  
- pistrap (0.8) unstable; urgency=low
+pistrap (0.8) unstable; urgency=low
 
   * Removed squeeze support, as it is now oldstable, and removed sid support as it is broken..
   * Also, added extra step, which sets GPU split, locale, SSH
 
  -- James Bennet <github@james-bennet.com>  Sat, 13 Apr 2013 00:54:08 +0100
  
- pistrap (0.7) unstable; urgency=low
+pistrap (0.7) unstable; urgency=low
 
   * Tagged as 0.7 release. 0.5 and 0.6 were not officially released.
 
