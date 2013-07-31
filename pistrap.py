@@ -2,16 +2,25 @@
 from __future__ import print_function
 from datetime import datetime
 import os
+import bottle
+from bottle import Bottle, route, run, request
+
+app = Bottle()
 
 # Configure details of build
 def init(build_details = {}):
-    build_details['bootsize'] = "64M" # Boot partition size on RPI.
-    build_details['size'] = "1000" # Size of image to create in MB. You will need to set this higher if you want a larger selection.
+    if not 'bootsize' in build_details:
+        build_details['bootsize'] = "64M" # Boot partition size on RPI.
+    if not 'size' in build_details:    
+        build_details['size'] = "1000" # Size of image to create in MB. You will need to set this higher if you want a larger selection.
+    if not 'password' in build_details:
+        build_details['password'] = "raspberry"
+        
     t = datetime.utcnow()
     build_details['mydate'] = t.strftime("%Y%m%d")  
     build_details['image'] = "placeholder.img"
-    build_details['password'] = "raspberry"
     build_details['device'] = "" # Build image
+    
     print ("Starting build on " + build_details['mydate'] + ".") 
     return build_details
 
@@ -26,8 +35,7 @@ def getBuildroot(build_details = {},buildenv = None):
     build_details['rootfs'] = build_details['buildenv'] + "/rootfs"
     build_details['bootfs'] = build_details['rootfs'] + "/boot"
 
-    if build_details['buildenv']:
-        print ("Working in build root: " + build_details['buildenv'] + "...")
+    print ("Working in build root: " + build_details['buildenv'] + "...")
     return build_details
 
 # Debian armel, or raspbian armhf.
@@ -46,7 +54,7 @@ def getType(build_details = {}, arch = None, suite = None,dist=None):
     if not dist:
         build_details['dist'] = "raspbian"
     else:
-        build_details['dist'] = suite
+        build_details['dist'] = dist
 
     if build_details['arch'] == "armhf" and build_details['dist'] == "raspbian" and build_details['suite'] == "wheezy":
         build_details['deb_mirror'] = "http://archive.raspbian.org/raspbian"
@@ -129,7 +137,15 @@ def main(build_details={}, buildenv = None, arch = None, suite = None,dist=None,
         build_details = getPassword(build_details,password)
         build_details = processBuild(build_details)
     return build_details
-        
+    
+@app.route('/build', method='POST')
+def build():
+    print("Build request has come in!")
+    build_details = {}
+    build_details = main(build_details, request.forms.get('buildenv'),request.forms.get('arch'),request.forms.get('suite'),request.forms.get('dist'),request.forms.get('hostname'),request.forms.get('password'))
+    return str(build_details)
+
 # Main entry point for the application
 if __name__ == "__main__":
-    main()
+    run(app,host='localhost', port=8080, debug=True)
+
