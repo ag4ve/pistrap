@@ -2,6 +2,7 @@
 from __future__ import print_function
 from datetime import datetime
 import os
+import glob
 import bottle
 from bottle import Bottle, route, run, request, abort, view, template
 
@@ -133,7 +134,13 @@ def checkRequirements():
 @view('submit')
 def index():
     print (bottle.TEMPLATE_PATH)
-    return template('submit')
+    builds = {}
+    
+    for files in os.listdir("/root/build"):
+        if files.startswith("pistrap_") and files.endswith(".img"):
+            builds[files] = "/root/build/" + files
+    
+    return template('submit', builds=builds)
 
 @app.route('/build', method='POST')
 def build():

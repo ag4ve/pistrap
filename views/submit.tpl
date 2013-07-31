@@ -34,6 +34,15 @@
             <input value='Build!' type='submit' />
         </form>
         </p>
+        <p>
+            <table border="1">
+                %for k in builds:
+                      <tr>
+                        <td><a href='{{builds[k]}}'>{{k}}</a></td>
+                      </tr>
+                %end
+            </table>
+        </p>
         <p>James Bennet 2013. Pistrap is Open Source, and hosted on GitHub.</p>
     </body>
 </html>
