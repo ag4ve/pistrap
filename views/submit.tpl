@@ -3,7 +3,7 @@
     <body>
         <h1>PiStrap Web Interface</h1>
         <p>This interface can be used to manually kick of daily builds.</p>
-        <p> Builds go to /root/build/pistrap_[suite]_[arch]_[ISO date corresponding to build]_[HH:MM].img . Images are 1000MB in size, with a 64MB boot partition</p>
+        <p> Builds go to /var/www/build/pistrap_[suite]_[arch]_[ISO date corresponding to build]_[HH:MM].img . Images are 1000MB in size, with a 64MB boot partition</p>
         <p> You will get the path to this build, and the command that was run to generate it, if it is successful. A log is written to /var/log/pistrap.log.</p>
         <p>In the image, you will find that a minimal working system is installed and a USB serial console and ssh is set up, for headless use. There is also a minor overclock applied. Just use it as an up-to-date blank canvas to install what you need.</p>
         <p>
@@ -39,7 +39,7 @@
             <tr><th>Builds</th></tr>
                 %for k in builds:
                       <tr>
-                        <td><a href='{{builds[k]}}'>{{k}}</a></td>
+                        <td><a href='builds/{{k}}}'>{{k}}</a></td>
                       </tr>
                 %end
             </table>

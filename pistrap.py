@@ -34,7 +34,7 @@ def init(build_details = {}):
 def getBuildroot(build_details = {},buildenv = None):   
     try:
         if not buildenv:
-            build_details['buildenv'] = "/root/build"
+            build_details['buildenv'] = "/var/www/build"
         else:
             build_details['buildenv'] = buildenv
             
@@ -136,9 +136,9 @@ def index():
     builds = {}
     
     try:
-        for files in os.listdir("/root/build"):
+        for files in os.listdir("/var/www/build"):
             if files.startswith("pistrap_") and files.endswith(".img"):
-                builds[files] = "/root/build/" + files
+                builds[files] = "/var/www/build/" + files
     except Exception as e:
         print ("Exception while listing image files: " + str (e))
         

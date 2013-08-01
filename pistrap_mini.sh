@@ -75,7 +75,7 @@ fi
 
 if [ -z "$5" ]
   then
-    buildenv="/root/build"
+    buildenv="/var/www/build"
 fi
 
 if [ -z "$6" ]
