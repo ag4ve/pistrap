@@ -4,7 +4,7 @@ from datetime import datetime
 import os
 import glob
 import bottle
-from bottle import Bottle, route, run, request, abort, view, template
+from bottle import Bottle, route, run, request, abort, view, template,static_file
 
 app = Bottle()
 
@@ -194,12 +194,18 @@ def build():
 
 @app.route('/build/<filename:re:.*\.img>', method='GET')
 def images(filename):
-    return static_file(filename, root='/var/www/build')
-
+    try:
+        return static_file(filename, root='/var/www/build')
+    except Exception as e:
+        return bottle.HTTPResponse(status=500, body=str(e))
+        
 @app.route('/<filename:re:.*\.log>', method='GET')
 def logs(filename):
-    return static_file(filename, root='/var/www')
-    
+    try:
+        return static_file(filename, root='/var/www')
+    except Exception as e:
+        return bottle.HTTPResponse(status=500, body=str(e))
+        
 # Main entry point for the application
 if __name__ == "__main__":
     try:
