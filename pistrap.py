@@ -106,7 +106,7 @@ def processBuild(build_details = {}):
                     
         # Call bash script with args
             
-        build_details['command'] = "sudo ./pistrap_mini.sh" + " " + build_details['hostname'] + " " + build_details['dist'] + " " + build_details['deb_mirror'] + " " + build_details['bootsize'] + " " + build_details['buildenv'] + " "  + build_details['suite'] + " " + build_details['password'] + " " + build_details['arch'] + " " + build_details['size'] + " 2>&1 | tee -a /var/log/pistrap.log"
+        build_details['command'] = "sudo ./pistrap_mini.sh" + " " + build_details['hostname'] + " " + build_details['dist'] + " " + build_details['deb_mirror'] + " " + build_details['bootsize'] + " " + build_details['buildenv'] + " "  + build_details['suite'] + " " + build_details['password'] + " " + build_details['arch'] + " " + build_details['size'] + " 2>&1 | tee -a /var/www/pistrap.log"
 
         print ("\nResulting Command:\n")
         print(build_details['command'])
@@ -192,9 +192,17 @@ def build():
     except Exception as e:
         return bottle.HTTPResponse(status=500, body=str(e))
 
+@app.route('/build/<filename:re:.*\.img>', method='GET')
+def images(filename):
+    return static_file(filename, root='/var/www/build')
+
+@app.route('/<filename:re:.*\.log>', method='GET')
+def logs(filename):
+    return static_file(filename, root='/var/www')
+    
 # Main entry point for the application
 if __name__ == "__main__":
     try:
-        run(app,host='localhost', port=8080, debug=True)
+        run(app,host='0.0.0.0', port=80, debug=True)
     except Exception as e:
         print("Error running app! : " + str(e))

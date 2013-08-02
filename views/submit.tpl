@@ -7,7 +7,7 @@
         <p> You will get the path to this build, and the command that was run to generate it, if it is successful. A log is written to /var/log/pistrap.log.</p>
         <p>In the image, you will find that a minimal working system is installed and a USB serial console and ssh is set up, for headless use. There is also a minor overclock applied. Just use it as an up-to-date blank canvas to install what you need.</p>
         <p>
-        <form name='build' action='http://localhost:8080/build' method='post'>
+        <form name='build' action='http://localhost:80/build' method='post'>
             <fieldset>
                 <legend>Build Options:</legend>
                 <label for='arch'>
@@ -39,7 +39,7 @@
             <tr><th>Builds</th></tr>
                 %for k in builds:
                       <tr>
-                        <td><a href='builds/{{k}}}'>{{k}}</a></td>
+                        <td><a href='http://localhost:80/build/{{k}}}'>{{k}}</a></td>
                       </tr>
                 %end
             </table>

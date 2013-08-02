@@ -123,15 +123,15 @@ echo "
 *****************
     Partitioning
 *****************
-" >> /var/log/pistrap.log
+" >> /var/www/pistrap.log
 
 if [ "$device" == "" ]; then
-  mkdir -p $buildenv  &>> /var/log/pistrap.log
+  mkdir -p $buildenv  &>> /var/www/pistrap.log
   image="${buildenv}/pistrap_${suite}_${arch}_${mydate}_${mytime}.img"
-  dd if=/dev/zero of=$image bs=1MB count=$size  &>> /var/log/pistrap.log
+  dd if=/dev/zero of=$image bs=1MB count=$size  &>> /var/www/pistrap.log
   device=`losetup -f --show $image`
 else
-  dd if=/dev/zero of=$device bs=512 count=1 &>> /var/log/pistrap.log
+  dd if=/dev/zero of=$device bs=512 count=1 &>> /var/www/pistrap.log
 fi
 
 fdisk $device << EOF
@@ -158,10 +158,10 @@ echo "
 *****************
       Mounting
 *****************
-" >> /var/log/pistrap.log
+" >> /var/www/pistrap.log
 
 if [ "$image" != "" ]; then
-  losetup -d $device &>> /var/log/pistrap.log
+  losetup -d $device &>> /var/www/pistrap.log
   device=`kpartx -va $image | sed -E 's/.*(loop[0-9])p.*/\1/g' | head -1`
   device="/dev/mapper/${device}"
   bootp=${device}p1
@@ -187,12 +187,12 @@ echo "
 *****************
       Formatting
 *****************
-" >> /var/log/pistrap.log
+" >> /var/www/pistrap.log
 
-mkfs.vfat $bootp &>> /var/log/pistrap.log # Boot partition
-mkfs.ext4 $rootp &>> /var/log/pistrap.log # Partition that will hold rootfs.
+mkfs.vfat $bootp &>> /var/www/pistrap.log # Boot partition
+mkfs.ext4 $rootp &>> /var/www/pistrap.log # Partition that will hold rootfs.
 
-mkdir -p $rootfs &>> /var/log/pistrap.log
+mkdir -p $rootfs &>> /var/www/pistrap.log
 }
 
 function bootstrapDevice
@@ -202,19 +202,19 @@ echo "
 *****************
    Bootstrapping
 *****************
-" >> /var/log/pistrap.log
+" >> /var/www/pistrap.log
 
-mount $rootp $rootfs  &>> /var/log/pistrap.log
-cd $rootfs  &>> /var/log/pistrap.log
+mount $rootp $rootfs  &>> /var/www/pistrap.log
+cd $rootfs  &>> /var/www/pistrap.log
 
 # To bootstrap our new system, we run debootstrap, passing it the target arch and suite, as well as a directory to work in.
 # FIXME: We do --no-check-certificate and --no-check-gpg to make raspbian work.
-debootstrap --no-check-certificate --no-check-gpg --foreign --arch $arch $suite $rootfs $deb_mirror  2>&1 | tee -a /var/log/pistrap.log
+debootstrap --no-check-certificate --no-check-gpg --foreign --arch $arch $suite $rootfs $deb_mirror  2>&1 | tee -a /var/www/pistrap.log
 
 # To be able to chroot into a target file system, the qemu emulator for the target CPU needs to be accessible from inside the chroot jail.
-cp /usr/bin/qemu-arm-static usr/bin/  &>> /var/log/pistrap.log
+cp /usr/bin/qemu-arm-static usr/bin/  &>> /var/www/pistrap.log
 # Second stage - Run Post-install scripts.
-LANG=C chroot $rootfs /debootstrap/debootstrap --no-check-certificate --no-check-gpg --second-stage  2>&1 | tee -a /var/log/pistrap.log
+LANG=C chroot $rootfs /debootstrap/debootstrap --no-check-certificate --no-check-gpg --second-stage  2>&1 | tee -a /var/www/pistrap.log
 }
 
 function configureBoot
@@ -224,9 +224,9 @@ echo "
 *****************
 Configuring Boot
 *****************
-" >> /var/log/pistrap.log
+" >> /var/www/pistrap.log
 
-mount $bootp $bootfs  &>> /var/log/pistrap.log
+mount $bootp $bootfs  &>> /var/www/pistrap.log
 
 echo "dwc_otg.lpm_enable=0 console=ttyUSB0,115200 kgdboc=ttyUSB0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait" > boot/cmdline.txt
 
@@ -243,7 +243,7 @@ echo "
 *****************
 Configuring Net
 *****************
-" >> /var/log/pistrap.log
+" >> /var/www/pistrap.log
 
 #Configure networking for DHCP
 echo $hostname > etc/hostname
@@ -264,7 +264,7 @@ echo "
 *****************
     Configuring
 *****************
-" >> /var/log/pistrap.log
+" >> /var/www/pistrap.log
 
 # By default, debootstrap creates a very minimal system, so we will want to extend it by installing more packages.
 echo "deb $deb_mirror $suite main contrib non-free
@@ -306,7 +306,7 @@ echo "
 *****************
     Stage 3
 *****************
-" >> /var/log/pistrap.log
+" >> /var/www/pistrap.log
 
 # Install things we need in order to grab and build firmware from github, and to work with the target remotely. Also, NTP as the date and time will be wrong, due to no RTC being on the board. This is important, as if you get errors relating to certificates, then the problem is likely due to one of two things. Either the time is set incorrectly on your Raspberry Pi, which you can fix by simply setting the time using NTP. The other possible issue is that you might not have the ca-certificates package installed, and so GitHub's SSL certificate isn't trusted.
 
@@ -327,8 +327,8 @@ apt-get update && yes | apt-get upgrade
 rm -f /etc/udev/rules.d/70-persistent-net.rules
 rm -f third-stage
 " > third-stage
-chmod +x third-stage  &>> /var/log/pistrap.log
-LANG=C chroot $rootfs /third-stage  2>&1 | tee -a /var/log/pistrap.log
+chmod +x third-stage  &>> /var/www/pistrap.log
+LANG=C chroot $rootfs /third-stage  2>&1 | tee -a /var/www/pistrap.log
 
 # Is this redundant?
 echo "deb $deb_mirror $suite main contrib non-free
@@ -342,23 +342,23 @@ echo "
 *****************
      Cleaning Up
 *****************
-" >> /var/log/pistrap.log
+" >> /var/www/pistrap.log
 
 # Tidy up afterward
 echo "#!/bin/bash
 apt-get -qq clean
 rm -f cleanup
 " > cleanup
-chmod +x cleanup &>> /var/log/pistrap.log
-LANG=C chroot $rootfs /cleanup &>> /var/log/pistrap.log
+chmod +x cleanup &>> /var/www/pistrap.log
+LANG=C chroot $rootfs /cleanup &>> /var/www/pistrap.log
 
 cd
 
-umount $bootp 2>&1 | tee -a /var/log/pistrap.log
-umount $rootp 2>&1 | tee -a /var/log/pistrap.log
+umount $bootp 2>&1 | tee -a /var/www/pistrap.log
+umount $rootp 2>&1 | tee -a /var/www/pistrap.log
 
 if [ "$image" != "" ]; then
-  kpartx -d $image &>> /var/log/pistrap.log
+  kpartx -d $image &>> /var/www/pistrap.log
 fi
 }
 
@@ -392,7 +392,7 @@ echo "
 *****************
       Done
 *****************
-" >> /var/log/pistrap.log
+" >> /var/www/pistrap.log
 
 }
 
