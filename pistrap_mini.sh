@@ -314,11 +314,12 @@ echo "#!/bin/bash
 debconf-set-selections /debconf.set
 rm -f /debconf.set
 apt-get -qq update
-apt-get -qq -y install --no-install-recommends git-core binutils ca-certificates locales console-common ntp ntpdate fake-hwclock openssh-server wget module-init-tools avahi-daemon cpufrequtils sysfsutils haveged rng-tools
+apt-get -qq -y install --no-install-recommends git-core binutils ca-certificates locales console-common ntp ntpdate fake-hwclock openssh-server wget module-init-tools avahi-daemon cpufrequtils sysfsutils haveged rng-tools curl
 wget  -q http://raw.github.com/Hexxeh/rpi-update/master/rpi-update -O /usr/bin/rpi-update
 chmod +x /usr/bin/rpi-update
 mkdir -p /lib/modules/3.1.9+
 mkdir -p /lib/modules/3.6.11+
+mkdir -p /lib/modules/3.10.26+
 touch /boot/start.elf
 rpi-update
 echo \"root:$password\" | chpasswd
