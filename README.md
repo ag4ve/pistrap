@@ -26,7 +26,7 @@ Install with:
     
 You need to have superuser rights to use this tool because debootstrap will create device nodes (using mknod) as well as chroot into the newly *created system. Therefore, run it with:
 
-    sudo pistrap
+    sudo ./pistrap.sh
 
 It *should* work on non-debian systems that have debootstrap. We should not assume the user is running a Debian derived system. ... I have been told you can install debootstrap on Fedora, Arch Linux etc... so we should not make calls to apt-get, which will not work on systems that don't use apt for package management (ie, most things that isn't Debian derived). Our apt-get's are done inside the debian chroots now, which is fine.
 
